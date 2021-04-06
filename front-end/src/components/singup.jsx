@@ -1,9 +1,15 @@
 import React, { Component } from "react";
-
+import ReactDOM from "react-dom";
 class searchBar extends Component {
   constructor(props) {
     super(props);
-    this.state = { email: "", password: "", message: "" };
+    this.state = {
+      message: "",
+      valueName: "",
+      password1: "",
+      password2: "",
+      email: "",
+    };
 
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -15,13 +21,27 @@ class searchBar extends Component {
           <input
             type="text"
             value={this.state.value}
+            onChange={(event) =>
+              this.setState({ valueName: event.target.value })
+            }
+          />
+          <input
+            type="text"
+            value={this.state.value}
             onChange={(event) => this.setState({ email: event.target.value })}
           />
           <input
             type="password"
             value={this.state.password}
             onChange={(event) =>
-              this.setState({ password: event.target.value })
+              this.setState({ password1: event.target.value })
+            }
+          />
+          <input
+            type="password"
+            value={this.state.password2}
+            onChange={(event) =>
+              this.setState({ password2: event.target.value })
             }
           />
           <button action="submit" value="a">
@@ -36,12 +56,16 @@ class searchBar extends Component {
   handleSubmit(event) {
     event.preventDefault();
 
+    if (this.state.password1 != this.state.password2)
+      return this.setState({ message: " Passwörter stimmen nicht über ein " });
+
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
     var raw = JSON.stringify({
+      name: this.state.valueName,
+      password: this.state.password1,
       email: this.state.email,
-      password: this.state.password,
     });
 
     var requestOptions = {
@@ -51,14 +75,12 @@ class searchBar extends Component {
       redirect: "follow",
     };
 
-    fetch("/users/login", requestOptions)
+    fetch("/users", requestOptions)
       .then((response) => response.text())
-      .then((result) => {
-        console.log(result);
-        if (result.status == 400) return this.setState({ message: "uff" });
-        this.setState({ message: " Das hat geklappt" });
-      })
-      .catch((error) => this.setState({ message: "Fa " }));
+      .then((result) =>
+        this.setState({ message: "Du hast dich erfolgreich registriert" })
+      )
+      .catch((error) => console.log("error", error));
   }
 }
 

@@ -41,6 +41,13 @@ router.post("/", auth, async (req, res) => {
     res.status(500).send();
   }
 });
+//get the name of all rooms
+
+router.get("/", async (req, res) => {
+  const a = await Room.find({}, { name: 1 });
+
+  res.send(a);
+});
 
 //gets the information for an room
 router.get("/:room", async (req, res) => {
@@ -101,15 +108,23 @@ router.post(
   auth,
   upload.single("pic"),
   async (req, res) => {
+    if (req.user.authstufe < 9)
+      return res.status(400).send({ error: "you are not permitted to update" });
+
     if (undefined === req.file)
       return res.status(400).send({ error: "Du musst eine file angeben" });
 
-    const buffer = await sharp(req.file.buffer).png().toBuffer();
+    const buffer = await sharp(req.file.buffer)
+      .resize({ width: 1920, height: 1080 })
+      .png()
+      .toBuffer();
 
     const room = await Room.findOne({ name: req.params.room });
 
-    room.pics.append(buffer);
+    room.pics = room.pics.concat({ pic: buffer });
     await room.save();
+
+    res.send(room);
   },
   (error, req, res, next) => {
     res.status(400).send({ error: error.message });

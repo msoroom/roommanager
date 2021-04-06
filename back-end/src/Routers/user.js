@@ -16,7 +16,7 @@ router.post("/users", async (req, res) => {
     res.cookie("auth_token", token);
     res.status(201).send({ user, token });
   } catch (e) {
-    res.status(401).send();
+    res.status(401).send(e);
   }
 });
 
@@ -31,6 +31,7 @@ router.post("/users/login", async (req, res) => {
     res.cookie("auth_token", token);
     res.send({ user, token });
   } catch (e) {
+    console.log(e);
     res.status(400).send();
   }
 });

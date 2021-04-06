@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 
 class suchen extends Component {
   constructor(props) {
@@ -10,16 +11,19 @@ class suchen extends Component {
 
   render() {
     return (
-      <form onSubmit={this.dosomething}>
-        <input value={this.value} onChange={this.update}></input>
-        <button></button>
-      </form>
+      <React.Fragment>
+        <form onSubmit={this.dosomething}>
+          <input value={this.value} onChange={this.update}></input>
+          <button></button>
+        </form>
+        <div id="room"></div>
+      </React.Fragment>
     );
   }
 
-  dosomething = (event) => {
+  dosomething = async (event) => {
     event.preventDefault();
-    console.log(this.state.value);
+    window.location.href = "/Room/" + this.state.value;
   };
 }
 

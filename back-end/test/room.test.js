@@ -116,5 +116,6 @@ test("should upload a new picture for a room", async () => {
   const response = await request(app)
     .post("/rooms/" + roomOne.name + "/admin/pics")
     .set("Cookie", "auth_token=" + userOne.tokens[0].token)
-    .send({});
+    .attach("pic", "test/fixtures/profile-pic.jpg")
+    .expect(200);
 });

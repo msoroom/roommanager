@@ -20,7 +20,10 @@ const roomSchema = new mongoose.Schema(
     },
     pics: [
       {
-        Type: Buffer,
+        pic: {
+          type: Buffer,
+          required: true,
+        },
       },
     ],
   },
