@@ -12,17 +12,20 @@ const roomSchema = new mongoose.Schema(
 
     props: {
       type: Object,
-      default: {},
     },
     buckedlist: {
       type: Object,
-      default: {},
     },
+
     pics: [
       {
         pic: {
           type: Buffer,
           required: true,
+        },
+
+        order: {
+          type: Number,
         },
       },
     ],

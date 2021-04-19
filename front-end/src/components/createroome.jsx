@@ -21,10 +21,6 @@ class createroome extends Component {
     event.preventDefault();
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
-    myHeaders.append(
-      "Cookie",
-      "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDZiNDhmMjZiNzBkMjJhYjAyNWQ5M2EiLCJpYXQiOjE2MTc2NTI1OTB9.oeJ-YIpS2xbUoKfy-nQVMD2PyZJqnA45TAbBhuFhyDg"
-    );
 
     var raw = JSON.stringify({
       name: this.state.room,

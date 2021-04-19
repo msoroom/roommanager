@@ -20,7 +20,15 @@ test("Should sign up a user", async () => {
   expect(user).not.toBeNull();
 
   //check if user is authstufe 1
-  expect(user.authstufe).toBe(1);
+  expect(user.perms).toEqual({
+    see_pics: true,
+    admin: false,
+    see_props: false,
+    edit_pics: false,
+    edit_props: false,
+    see_todo: false,
+    edit_todo: false,
+  });
 });
 test("Should not sign up a user", async () => {
   //user expist
@@ -102,4 +110,14 @@ test("Should delete user", async () => {
 
   const user = await User.findById({ _id: userOneId });
   expect(user).toBeNull;
+});
+
+test("Should get the permissions of an user", async () => {
+  const response = await request(app)
+    .get("/users/me/auth")
+    .set("Cookie", "auth_token=" + userOne.tokens[0].token)
+    .send()
+    .expect(200);
+
+  expect(response.body.perms).toEqual(userOne.perms);
 });

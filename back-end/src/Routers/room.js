@@ -3,6 +3,7 @@ const auth = require("../middleware/auth");
 const Room = require("../models/room");
 const multer = require("multer");
 const sharp = require("sharp");
+const auditlog = require("../middleware/auditlog");
 
 //set up router
 const router = new express.Router();
@@ -11,7 +12,7 @@ const router = new express.Router();
 
 const upload = multer({
   limits: {
-    fieldSize: 1000000,
+    fieldSize: 10000000,
   },
   fileFilter(req, file, cb) {
     if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
@@ -23,9 +24,9 @@ const upload = multer({
 });
 
 //router routes
-router.post("/", auth, async (req, res) => {
+router.post("/", auth, auditlog, async (req, res) => {
   try {
-    if (req.user.authstufe < 7) {
+    if (!req.user.perms.admin) {
       return res
         .status(400)
         .send({ error: "You are not permitted to do this" });
@@ -33,6 +34,8 @@ router.post("/", auth, async (req, res) => {
 
     const room = new Room({
       ...req.body,
+      props: {},
+      buckedlist: {},
     });
 
     const done = await room.save();
@@ -44,48 +47,56 @@ router.post("/", auth, async (req, res) => {
 //get the name of all rooms
 
 router.get("/", async (req, res) => {
-  const a = await Room.find({}, { name: 1 });
-
-  res.send(a);
-});
-
-//gets the information for an room
-router.get("/:room", async (req, res) => {
-  const roomName = req.params.room;
-
   try {
-    const room = await Room.findOne({ name: roomName });
+    const a = await Room.find({}, { name: 1 });
 
-    if (!room) return res.status(400).send({ error: "Room not found" });
-
-    res.status(200).send({ name: room.name, pics: room.pics });
+    res.send(a);
   } catch (error) {
     res.status(500).send();
   }
 });
 
-router.get("/:room/admin", auth, async (req, res) => {
+//gets the information for an room
+router.get("/:room", auth, auditlog, async (req, res) => {
   const roomName = req.params.room;
+  console.log("sdfdf");
   try {
-    if (req.user.authstufe < 7)
-      throw new Error("you are not permitted to do this");
-
     const room = await Room.findOne({ name: roomName });
 
     if (!room) return res.status(400).send({ error: "Room not found" });
 
-    res.status(200).send(room);
+    if (req.user.perms.admin) {
+      const { name, pics, props, buckedlist } = room;
+
+      return res.send({ name, pics, props, buckedlist });
+    }
+
+    let information = { name: room.name };
+    if (req.user.perms.see_pics) information.pics = room.pics;
+    if (req.user.perms.see_props) information.props = room.props;
+    if (req.user.perms.see_todo) information.todo = room.buckedlist;
+
+    res.send({ ...information });
   } catch (error) {
     res.status(500).send(error);
   }
 });
 
-router.patch("/:room/admin", auth, async (req, res) => {
+router.patch("/:room/admin", auth, auditlog, async (req, res) => {
   //valid stuff
-  const validUpdates = ["name", "props", "buckedlist"];
+  var validUpdates = [];
+  if (req.user.perms.admin) {
+    validUpdates = ["props", "buckedlist"];
+  } else {
+    if (req.user.perms.edit_todo) {
+      validUpdates.push("buckedlist");
+    }
+    if (req.user.perms.edit_props) {
+      validUpdates.push("props");
+    }
+  }
 
-  if (req.user.authstufe < 9)
-    return res.status(400).send({ error: "you are not permitted to update" });
+  //stuff
   const roomname = req.params.room;
   var updates = req.body;
 
@@ -95,6 +106,7 @@ router.patch("/:room/admin", auth, async (req, res) => {
     updates = Object.fromEntries(
       Object.entries(updates).filter(([key]) => validUpdates.includes(key))
     );
+
     Object.assign(room, room, updates);
     room.save();
     res.send(room);
@@ -106,9 +118,10 @@ router.patch("/:room/admin", auth, async (req, res) => {
 router.post(
   "/:room/admin/pics",
   auth,
+  auditlog,
   upload.single("pic"),
   async (req, res) => {
-    if (req.user.authstufe < 9)
+    if (!(req.user.perms.edit_pics || req.user.perms.admin))
       return res.status(400).send({ error: "you are not permitted to update" });
 
     if (undefined === req.file)
@@ -130,5 +143,21 @@ router.post(
     res.status(400).send({ error: error.message });
   }
 );
+
+router.delete("/:room/:pic/admin", auth, auditlog, async (req, res) => {
+  if (!(req.user.perms.edit_pics || req.user.perms.admin))
+    return res.status(400).send({ error: "you are not permitted to update" });
+
+  try {
+    const room = await Room.findOneAndDelete({
+      name: req.params.room,
+      "pics._id": req.params.pic,
+    });
+
+    res.send(room);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
 
 module.exports = router;

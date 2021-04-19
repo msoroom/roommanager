@@ -33,13 +33,7 @@ const userSchema = new mongoose.Schema(
         }
       },
     },
-    authstufe: {
-      type: Number,
-      min: 0,
-      max: 10,
-      required: true,
-      default: 1,
-    },
+    perms: { type: Object },
     tokens: [
       {
         token: {

@@ -52,11 +52,11 @@ class searchBar extends Component {
     };
 
     fetch("/users/login", requestOptions)
-      .then((response) => response.text())
+      .then((response) => response.json())
       .then((result) => {
-        console.log(result);
-        if (result.status == 400) return this.setState({ message: "uff" });
-        this.setState({ message: " Das hat geklappt" });
+        if (result.error)
+          return this.setState({ message: "Das hat nicht geklappt" });
+        else this.setState({ message: " Das hat geklappt" });
       })
       .catch((error) => this.setState({ message: "Fa " }));
   }

@@ -7,6 +7,7 @@ const {
   userTwo,
   roomOne,
   roomTwo,
+  roomeOnePicID,
   setUpDatabase,
 } = require("./fixtures/db");
 
@@ -44,46 +45,39 @@ test("Should not create a new room", async () => {
     .send()
     .expect(400);
 });
-test("Should get a room ", async () => {
+test("Should get a room as an admin ", async () => {
   var response = await request(app)
     .get("/rooms/" + roomOne.name)
-    .send()
-    .expect(200);
-
-  expect(response.body.name).toBe(roomOne.name);
-});
-test("Should not get a room ", async () => {
-  var response = await request(app).get("/rooms/not a room").send().expect(400);
-
-  expect(response.body.name).toBeUndefined();
-});
-test("Should get room with admin permissions", async () => {
-  const response = await request(app)
-    .get("/rooms/" + roomOne.name + "/admin")
     .set("Cookie", "auth_token=" + userOne.tokens[0].token)
     .send()
     .expect(200);
 
   expect(response.body.name).toBe(roomOne.name);
-  expect(response.body.pic).not.toBeNull();
-  expect(response.body.buckedlist).not.toBeNull();
-  expect(response.body.props.operatingSystem).toBe("Linux");
+  expect(response.body._id).not.toBeUndefined();
 });
-test("Should not get a room", async () => {
-  const response = await request(app)
-    .get("/rooms/some rubisch witch is not a room/admin")
+test("Should get a room with given perms", async () => {
+  var response = await request(app)
+    .get("/rooms/" + roomOne.name)
+    .set("Cookie", "auth_token=" + userTwo.tokens[0].token)
+    .send()
+    .expect(200);
+});
+
+test("Should not get a room ", async () => {
+  var response = await request(app)
+    .get("/rooms/not a room")
     .set("Cookie", "auth_token=" + userOne.tokens[0].token)
     .send()
     .expect(400);
 
-  expect(response.body.error).toBe("Room not found");
+  expect(response.body.name).toBeUndefined();
 });
 
 test("Should update the mentioned room with only the walid params", async () => {
   const updates = {
     name: "neuer name",
     props: {
-      operatingSystem: "Windows",
+      operatingSystem: undefined,
       Board: "gen 2",
       Usbstick: "alpa",
     },
@@ -92,6 +86,7 @@ test("Should update the mentioned room with only the walid params", async () => 
     },
     stupid: true,
   };
+  //mit admin permissions
 
   const response = await request(app)
     .patch("/rooms/" + roomOne.name + "/admin")
@@ -99,17 +94,38 @@ test("Should update the mentioned room with only the walid params", async () => 
     .send({ ...updates })
     .expect(200);
 
-  expect(response.body.name).toBe(updates.name);
+  expect(response.body.name).not.toBe(updates.name);
   expect(response.body.props).toEqual(updates.props);
   expect(response.body.stupid).toBeUndefined();
   expect(response.body.buckedlist.laufwerk).toBe(true);
 
   const room = await Room.findById({ _id: roomOne._id });
 
-  expect(room.name).toBe(updates.name);
+  expect(room.name).not.toBe(updates.name);
   expect(room.props).toEqual(updates.props);
   expect(room.stupid).toBeUndefined();
   expect(room.buckedlist.laufwerk).toBe(true);
+
+  await setUpDatabase();
+
+  // if the user only has the perms to update a certain prop
+  const response2 = await request(app)
+    .patch("/rooms/" + roomOne.name + "/admin")
+    .set("Cookie", "auth_token=" + userTwo.tokens[0].token)
+    .send({ ...updates })
+    .expect(200);
+
+  expect(response2.body.name).not.toBe(updates.name);
+  expect(response2.body.props).toEqual(updates.props);
+  expect(response2.body.stupid).toBeUndefined();
+  expect(response2.body.buckedlist).toBeUndefined();
+
+  const room2 = await Room.findById({ _id: roomOne._id });
+
+  expect(room2.name).not.toBe(updates.name);
+  expect(room2.props).toEqual(updates.props);
+  expect(room2.stupid).toBeUndefined();
+  expect(room2.buckedlist).toBeUndefined();
 });
 
 test("should upload a new picture for a room", async () => {
@@ -119,3 +135,24 @@ test("should upload a new picture for a room", async () => {
     .attach("pic", "test/fixtures/profile-pic.jpg")
     .expect(200);
 });
+
+test("should not upload a new picture for a room", async () => {
+  const response = await request(app)
+    .post("/rooms/" + roomOne.name + "/admin/pics")
+    .set("Cookie", "auth_token=" + userTwo.tokens[0].token)
+    .attach("pic", "test/fixtures/profile-pic.jpg")
+    .expect(400);
+});
+test("Should delete a picture for a room", async () => {
+  const response = await request(app)
+    .delete("/rooms/" + roomOne.name + "/" + roomeOnePicID + "/admin/")
+    .set("Cookie", "auth_token=" + userOne.tokens[0].token)
+    .send()
+    .expect(200);
+
+  const room = await Room.findById({ _id: roomOne._id });
+
+  expect(room.pics.length).toBe(0);
+});
+
+test("Should not delete a picture for a room", async () => {});

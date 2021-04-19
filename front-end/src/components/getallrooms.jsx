@@ -18,8 +18,8 @@ class allrooms extends Component {
   }
 
   renderRooms() {
-    return this.state.rooms.map((room) => (
-      <div>
+    return this.state.rooms.map((room, i) => (
+      <div key={room.name}>
         <Link to={`/Room/${room.name}`}>
           <li>{room.name}</li>
         </Link>
