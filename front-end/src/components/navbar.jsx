@@ -6,12 +6,44 @@ import Cookies from "universal-cookie";
 import "../css/my.css";
 class navbar extends Component {
   constructor(props) {
-    console.log(new Cookies());
     super(props);
-    console.log(props);
-    this.state = { buttonstate: "danger" };
+    this.state = { buttonstate: "danger", cookies: null };
   }
   render() {
+    return this.renderalle();
+  }
+
+  componentDidMount() {
+    const a = new Cookies().addChangeListener(this.renderalle);
+
+    this.setState({
+      cookies: a,
+    });
+    console.log(a);
+    console.log(this.state.cookies);
+  }
+
+  async logout(e) {
+    e.preventDefault();
+    const cookies = new Cookies();
+    console.log(cookies);
+
+    cookies.remove("auth_token", { path: "/" });
+
+    var requestOptions = {
+      method: "POST",
+      redirect: "follow",
+    };
+
+    fetch("/users/logout", requestOptions)
+      .then((ea) => {
+        if (ea.status !== 200) return;
+        this.setState({});
+      })
+      .catch((e) => console.log(e));
+  }
+
+  renderalle() {
     return (
       <Navbar sticky="top" className="color-nav" fixed="top">
         <Nav>
@@ -36,30 +68,6 @@ class navbar extends Component {
         </Nav>
       </Navbar>
     );
-  }
-  async logout(e) {
-    e.preventDefault();
-    const { cookies } = this.props;
-    console.log(cookies);
-
-    cookies.remove("auth_token");
-
-    var requestOptions = {
-      method: "POST",
-      redirect: "follow",
-    };
-
-    fetch("/users/logout", requestOptions)
-      .then((ea) => {
-        if (ea.status !== 200) return;
-
-        document.cookie =
-          "auth_token; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;";
-
-        this.setState({ buttonstate: "success" });
-        document.reload();
-      })
-      .catch((e) => console.log(e));
   }
 }
 
