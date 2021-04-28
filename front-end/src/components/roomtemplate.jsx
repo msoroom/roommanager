@@ -1,12 +1,27 @@
 import React, { Component } from "react";
 import Picupload from "./picupload";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Image, Tabs, Tab } from "react-bootstrap";
+import {
+  Image,
+  Tabs,
+  Tab,
+  TabContainer,
+  Button,
+  Carousel,
+  Row,
+} from "react-bootstrap";
+
 class room extends Component {
   constructor(props) {
     super(props);
   }
-  state = { Room: null, message: "loading", authstufe: {}, editing: false };
+  state = {
+    Room: null,
+    message: "loading",
+    authstufe: {},
+    editing: false,
+    tab: 1,
+  };
   render() {
     return (
       <div>
@@ -15,29 +30,34 @@ class room extends Component {
         {!this.state.Room ? (
           <b>{this.state.message}</b>
         ) : (
-          <Tabs defaultActiveKey="pics" id="uncontrolled-tab-example">
-            {!(this.state.authstufe.admin || this.state.authstufe.see_pics) ? (
-              console.log("aa")
-            ) : (
-              <Tab eventKey="pics" title="Bilder">
-                {this.renderpics()}
-              </Tab>
-            )}
-            {!(
-              this.state.authstufe.see_props || this.state.authstufe.admin
-            ) ? undefined : (
-              <Tab eventKey="props" title="Eigenschaften">
-                {this.renderprops()}
-              </Tab>
-            )}
-            {!(
-              this.state.authstufe.see_todo || this.state.authstufe.admin
-            ) ? undefined : (
-              <Tab eventKey="todo" title="Todo">
-                {this.rendertodos()}
-              </Tab>
-            )}
-          </Tabs>
+          <React.Fragment>
+            <Tabs defaultActiveKey="pics" id="uncontrolled-tab-example">
+              {!(
+                this.state.authstufe.admin || this.state.authstufe.see_pics
+              ) ? (
+                console.log("aa")
+              ) : (
+                <Tab eventKey="pics" title="Bilder">
+                  {this.renderpics()}
+                </Tab>
+              )}
+              {!(
+                this.state.authstufe.see_props || this.state.authstufe.admin
+              ) ? undefined : (
+                <Tab eventKey="props" title="Eigenschaften">
+                  {this.renderprops()}
+                </Tab>
+              )}
+              {!(
+                this.state.authstufe.see_todo || this.state.authstufe.admin
+              ) ? undefined : (
+                <Tab eventKey="todo" title="Todo">
+                  {this.rendertodos()}
+                </Tab>
+              )}
+            </Tabs>
+            {this.renderButton()}
+          </React.Fragment>
         )}
       </div>
     );
@@ -70,16 +90,41 @@ class room extends Component {
       return <b>Es sind keine Bilder für diesen Raum vorhanden</b>;
     if (this.state.Room.pics.length == 0)
       return <b>Es sind keine Bilder für diesen Raum vorhanden</b>;
-    return this.state.Room.pics.map((p, i) => {
-      const base64string = String(
-        "data:image/png;base64," + Buffer.from(p.pic.data).toString("base64")
-      );
 
-      return (
-        <Image src={base64string} key={i} className="autobilder" fluid={true} />
-      );
-    });
+    return (
+      <div className="RoomPicBox">
+        <Carousel>
+          {this.state.Room.pics.map((p, i) => {
+            const base64string = String(
+              "data:image/png;base64," +
+                Buffer.from(p.pic.data).toString("base64")
+            );
+            return (
+              <Carousel.Item key={i}>
+                <Image fluid={true} src={base64string} alt="First slide" />
+              </Carousel.Item>
+            );
+          })}
+        </Carousel>
+      </div>
+    );
   }
+
+  // renderpics() {
+  //   if (!this.state.Room.pics)
+  //     return <b>Es sind keine Bilder für diesen Raum vorhanden</b>;
+  //   if (this.state.Room.pics.length == 0)
+  //     return <b>Es sind keine Bilder für diesen Raum vorhanden</b>;
+  //   return this.state.Room.pics.map((p, i) => {
+  //     const base64string = String(
+  //       "data:image/png;base64," + Buffer.from(p.pic.data).toString("base64")
+  //     );
+
+  //     return (
+  //       <Image src={base64string} key={i} className="autobilder" fluid={true} />
+  //     );
+  //   });
+  // }
 
   renderprops() {
     if (!this.state.Room.props) return;
@@ -101,6 +146,10 @@ class room extends Component {
     );
   }
   rendertodos() {
+    return;
+  }
+
+  renderButton() {
     return;
   }
 }

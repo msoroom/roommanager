@@ -1,10 +1,14 @@
 import React, { Component } from "react";
 import { Navbar, Nav, NavDropdown, Button } from "react-bootstrap";
 
+import Cookies from "universal-cookie";
+
 import "../css/my.css";
 class navbar extends Component {
   constructor(props) {
+    console.log(new Cookies());
     super(props);
+    console.log(props);
     this.state = { buttonstate: "danger" };
   }
   render() {
@@ -35,6 +39,10 @@ class navbar extends Component {
   }
   async logout(e) {
     e.preventDefault();
+    const { cookies } = this.props;
+    console.log(cookies);
+
+    cookies.remove("auth_token");
 
     var requestOptions = {
       method: "POST",

@@ -8,3 +8,9 @@
 .color-nav {
   background-color: rgb(236, 109, 7);
 }
+
+.RoomPicBox {
+  width: 60%;
+  height: auto;
+  background-color: rgb(138, 38, 38);
+}

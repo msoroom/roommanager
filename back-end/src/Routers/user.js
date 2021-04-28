@@ -53,8 +53,9 @@ router.post("/users/logout", auth, async (req, res) => {
 
     await req.user.save();
 
-    return res.send({ done: true });
+    return res.send();
   } catch (e) {
+    console.log(e);
     res.status(500).send();
   }
 });
