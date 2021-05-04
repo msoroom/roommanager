@@ -144,17 +144,20 @@ router.post(
   }
 );
 
-router.delete("/:room/:pic/admin", auth, auditlog, async (req, res) => {
+router.delete("/:room/pic/admin", auth, auditlog, async (req, res) => {
   if (!(req.user.perms.edit_pics || req.user.perms.admin))
     return res.status(400).send({ error: "you are not permitted to update" });
 
+  const delbil = req.body;
+
   try {
-    const room = await Room.findOneAndDelete({
-      name: req.params.room,
-      "pics._id": req.params.pic,
+    var room = await Room.findOne({ name: req.params.room });
+
+    room.pics = room.pics.filter((pic) => {
+      !delbil.includes(pic._id);
     });
 
-    res.send(room);
+    res.send();
   } catch (error) {
     res.status(500).send(error);
   }

@@ -1,4 +1,6 @@
 const request = require("supertest");
+const fs = require("fs");
+const path = require("path");
 const app = require("../src/app");
 const Room = require("../src/models/room");
 const {
@@ -53,7 +55,6 @@ test("Should get a room as an admin ", async () => {
     .expect(200);
 
   expect(response.body.name).toBe(roomOne.name);
-  expect(response.body._id).not.toBeUndefined();
 });
 test("Should get a room with given perms", async () => {
   var response = await request(app)
@@ -144,15 +145,33 @@ test("should not upload a new picture for a room", async () => {
     .expect(400);
 });
 test("Should delete a picture for a room", async () => {
+  var a = await Room.findOne({ _id: roomOne._id });
+
+  const bu = fs.readFileSync(path.join(__dirname, "/fixtures/profile-pic.jpg"));
+
+  a.pics.push({
+    _id: roomeOnePicID,
+    pic: bu,
+  });
+  console.log(roomeOnePicID);
+
+  a.pics.push({
+    pic: bu,
+  });
+
+  await a.save();
+
   const response = await request(app)
-    .delete("/rooms/" + roomOne.name + "/" + roomeOnePicID + "/admin/")
+    .delete("/rooms/" + roomOne.name + "/pic/admin/")
     .set("Cookie", "auth_token=" + userOne.tokens[0].token)
-    .send()
+    .send([roomeOnePicID])
     .expect(200);
 
-  const room = await Room.findById({ _id: roomOne._id });
+  const roooms = await Room.find({});
 
-  expect(room.pics.length).toBe(0);
+  console.log(roooms);
+
+  const room = await Room.findOne({ _id: roomOne._id });
+
+  console.log("alpha " + room);
 });
-
-test("Should not delete a picture for a room", async () => {});

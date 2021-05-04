@@ -21,17 +21,20 @@ class searchBar extends Component {
           <input
             type="text"
             value={this.state.value}
+            placeholder="name"
             onChange={(event) =>
               this.setState({ valueName: event.target.value })
             }
           />
           <input
             type="text"
+            placeholder="email"
             value={this.state.value}
             onChange={(event) => this.setState({ email: event.target.value })}
           />
           <input
             type="password"
+            placeholder="password"
             value={this.state.password}
             onChange={(event) =>
               this.setState({ password1: event.target.value })
@@ -39,6 +42,7 @@ class searchBar extends Component {
           />
           <input
             type="password"
+            placeholder="password wiederholen"
             value={this.state.password2}
             onChange={(event) =>
               this.setState({ password2: event.target.value })

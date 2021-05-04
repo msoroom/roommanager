@@ -14,21 +14,12 @@ class navbar extends Component {
   }
 
   componentDidMount() {
-    const a = new Cookies().addChangeListener(this.renderalle);
-
-    this.setState({
-      cookies: a,
-    });
-    console.log(a);
-    console.log(this.state.cookies);
+    //const a = new Cookies().addChangeListener(this.renderalle);
   }
 
   async logout(e) {
     e.preventDefault();
     const cookies = new Cookies();
-    console.log(cookies);
-
-    cookies.remove("auth_token", { path: "/" });
 
     var requestOptions = {
       method: "POST",
@@ -38,7 +29,8 @@ class navbar extends Component {
     fetch("/users/logout", requestOptions)
       .then((ea) => {
         if (ea.status !== 200) return;
-        this.setState({});
+        this.setState({ buttonstate: "fullfilled" });
+        cookies.remove("auth_token", { path: "/" });
       })
       .catch((e) => console.log(e));
   }

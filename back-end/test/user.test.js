@@ -119,5 +119,5 @@ test("Should get the permissions of an user", async () => {
     .send()
     .expect(200);
 
-  expect(response.body.perms).toEqual(userOne.perms);
+  expect(response.body).toEqual(userOne.perms);
 });

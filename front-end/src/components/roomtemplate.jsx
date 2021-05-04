@@ -5,10 +5,11 @@ import {
   Image,
   Tabs,
   Tab,
-  TabContainer,
   Button,
   Carousel,
   Row,
+  Container,
+  Col,
 } from "react-bootstrap";
 
 class room extends Component {
@@ -20,23 +21,28 @@ class room extends Component {
     message: "loading",
     authstufe: {},
     editing: false,
-    tab: 1,
+    tab: "pics",
+    changepics: [],
   };
   render() {
     return (
       <div>
-        <h1>{this.props.match.params.name}</h1>
+        <p>{this.props.match.params.name}</p>
 
         {!this.state.Room ? (
           <b>{this.state.message}</b>
         ) : (
           <React.Fragment>
-            <Tabs defaultActiveKey="pics" id="uncontrolled-tab-example">
+            <Tabs
+              defaultActiveKey="pics"
+              id="uncontrolled-tab-example"
+              onSelect={(selectedkey) => {
+                this.setState({ tab: selectedkey });
+              }}
+            >
               {!(
                 this.state.authstufe.admin || this.state.authstufe.see_pics
-              ) ? (
-                console.log("aa")
-              ) : (
+              ) ? null : (
                 <Tab eventKey="pics" title="Bilder">
                   {this.renderpics()}
                 </Tab>
@@ -75,7 +81,7 @@ class room extends Component {
     );
 
     const fine = await room.json();
-    console.log(fine);
+
     //get user athentication status
 
     if (!document.cookie.includes("auth_token")) return;
@@ -85,13 +91,15 @@ class room extends Component {
     this.setState({ Room: fine, authstufe: fine2 });
   }
 
+  handelSelect() {}
+
   renderpics() {
     if (!this.state.Room.pics)
       return <b>Es sind keine Bilder für diesen Raum vorhanden</b>;
     if (this.state.Room.pics.length == 0)
       return <b>Es sind keine Bilder für diesen Raum vorhanden</b>;
 
-    return (
+    return !this.state.editing ? (
       <div className="RoomPicBox">
         <Carousel>
           {this.state.Room.pics.map((p, i) => {
@@ -106,6 +114,35 @@ class room extends Component {
             );
           })}
         </Carousel>
+      </div>
+    ) : (
+      <div className="RoomPicBox">
+        {this.state.Room.pics.map((p, i) => {
+          const base64string = String(
+            "data:image/png;base64," +
+              Buffer.from(p.pic.data).toString("base64")
+          );
+
+          return (
+            <Row md="2">
+              {" "}
+              <Image
+                src={base64string}
+                key={i}
+                className="autobilder"
+                fluid={true}
+              />
+              <Button
+                id={p._id}
+                onClick={(e) => {
+                  this.changepics.push(e.target.id);
+                }}
+              >
+                delete
+              </Button>
+            </Row>
+          );
+        })}
       </div>
     );
   }
@@ -131,27 +168,106 @@ class room extends Component {
 
     return (
       <React.Fragment>
-        <table>
-          {Object.keys(this.state.Room.props).map((prop, i) => {
-            <tr key={i}>
-              <th key={prop}>{prop}</th>
-              <th key={this.state.Room.props[prop]}>
-                {this.state.Room.props[prop]}
-              </th>
-            </tr>;
-          })}
-        </table>
-        <input type="text"></input>
+        <div className="PropsList">
+          {" "}
+          <Container>
+            {Object.keys(this.state.Room.props).map((prop, i) => {
+              return (
+                <Row>
+                  <Col md="auto">
+                    <p>{prop}</p>
+                  </Col>
+                  <Col md="auto">
+                    <p>{this.state.Room.props[prop]}</p>
+                  </Col>
+                </Row>
+              );
+            })}
+          </Container>
+        </div>
       </React.Fragment>
     );
   }
   rendertodos() {
-    return;
+    if (!this.state.Room.todo) return;
+
+    return (
+      <React.Fragment>
+        <div className="PropsList">
+          {" "}
+          <Container>
+            {Object.keys(this.state.Room.todo).map((prop, i) => {
+              return (
+                <Row>
+                  <p>{prop}</p>
+
+                  <p>{this.state.Room.todo[prop]}</p>
+                </Row>
+              );
+            })}
+          </Container>
+        </div>
+      </React.Fragment>
+    );
   }
 
   renderButton() {
-    return;
+    if (
+      this.state.tab === "pics" &&
+      (this.state.authstufe.edit_pics || this.state.authstufe.admin)
+    ) {
+      return (
+        <div>
+          {!this.state.editing ? (
+            <Button onClick={() => this.setState({ editing: true })}>
+              edit
+            </Button>
+          ) : (
+            <React.Fragment>
+              {" "}
+              <Picupload />
+              <Row>
+                <Button onClick={() => this.setState({ editing: false })}>
+                  cancel
+                </Button>
+                <Button variant="danger" onClick={(e) => {}}>
+                  Save
+                </Button>
+              </Row>
+            </React.Fragment>
+          )}
+        </div>
+      );
+    }
+
+    if (
+      this.state.tab === "props" &&
+      !(this.state.authstufe.edit_props || this.state.authstufe.admin)
+    )
+      return;
+
+    if (
+      this.state.tab === "todo" &&
+      !(this.state.authstufe.edit_todo || this.state.authstufe.admin)
+    )
+      return;
+
+    return (
+      <div>
+        {!this.state.editing ? (
+          <Button onClick={() => this.setState({ editing: true })}>edit</Button>
+        ) : (
+          <Row>
+            <Button onClick={() => this.setState({ editing: false })}>
+              cancel
+            </Button>
+            <Button variant="danger">Save</Button>
+          </Row>
+        )}
+      </div>
+    );
   }
+  picdeleter() {}
 }
 
 export default room;

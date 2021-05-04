@@ -1,8 +1,10 @@
-FROM  mhart/alpine-node:8.11.4
-
+FROM  node:alpine
 EXPOSE 3000:3000
 
-COPY . .
+RUN apt-get update || : && apt-get install python -y
+
+
+ADD . .
 
 RUN npm i 
 
