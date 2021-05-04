@@ -31,6 +31,9 @@ router.post("/users", async (req, res) => {
 });
 
 router.post("/users/login", async (req, res) => {
+ 
+  console.log("abcdeff")
+ 
   try {
     const user = await User.findByCredentials(
       req.body.email,

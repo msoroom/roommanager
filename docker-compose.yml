@@ -37,4 +37,4 @@ services:
 networks:
   mso_rooms:
     external: true
-    name: host
+    name: mso_rooms
