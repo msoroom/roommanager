@@ -28,7 +28,7 @@ class pictureupload extends Component {
       this.state.selectedFile.name
     );
     axios
-      .post("/rooms/" + this.props.room.name + "/admin/pics", formData)
+      .post("/rooms/" + this.props.match.params.name + "/admin/pics", formData)
       .then((e) => this.setState({ message: "Finished" }));
   };
 }

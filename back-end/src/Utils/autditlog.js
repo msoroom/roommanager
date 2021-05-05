@@ -1,5 +1,10 @@
-var que = [];
+
+
+
 const fs = require("fs");
+
+
+var que = [];
 
 const queadder = (a) => {
   que.push(a);
@@ -15,6 +20,13 @@ const writer = () => {
   });
 };
 
+const setuplogs = (a)=> {
+
+fs.mkdirSync(path.join(
+  __dirname,"/Utils/logs/"))
+
+}
+
 setInterval(writer, 1000);
 
-module.exports = { writer, queadder };
+module.exports = { writer, queadder,setuplogs };

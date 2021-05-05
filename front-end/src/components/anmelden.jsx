@@ -58,7 +58,9 @@ class searchBar extends Component {
           return this.setState({ message: "Das hat nicht geklappt" });
         else this.setState({ message: " Das hat geklappt" });
       })
-      .catch((error) => this.setState({ message: "Fa " }));
+      .catch((error) => {this.setState({ message: "Fa " })
+      console.log(error)
+    });
   }
 }
 

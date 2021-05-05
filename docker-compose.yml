@@ -25,7 +25,7 @@ services:
     container_name: mso-rooms-front-end
 
   db:
-    image: mongo:bionic
+    image: mongo:latest
     ports:
       - "27017:27017"
     networks:

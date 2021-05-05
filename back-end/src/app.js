@@ -12,6 +12,7 @@ const User = require("./models/user");
 
 const app = express();
 
+auditlog.setuplogs();
 //variabelen
 
 app.use(express.json());
