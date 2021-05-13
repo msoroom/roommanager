@@ -5,34 +5,21 @@ services:
     build: ./back-end/
     ports:
       - "3001:3001"
-    networks: 
-       mso_rooms:
+    networks:
+      mso_rooms:
         ipv4_address: 10.20.0.3
-
-    depends_on:
-      - db
     container_name: mso-room-api
 
   client:
     build: ./front-end/
     ports:
       - "3000:3000"
-    networks: 
+    networks:
       mso_rooms:
         ipv4_address: 10.20.0.4
     depends_on:
       - api
     container_name: mso-rooms-front-end
-
-  db:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    networks:
-      mso_rooms:
-        ipv4_address: 10.20.0.1
-    container_name: mso-rooms-database
-
 
 networks:
   mso_rooms:

@@ -15,5 +15,5 @@
   background-color: rgb(138, 38, 38);
 }
 .PropsList {
-  width: 10%;
+  position: absolute left;
 }

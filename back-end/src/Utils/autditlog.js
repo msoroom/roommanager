@@ -1,8 +1,5 @@
-
-
-
 const fs = require("fs");
-
+const path = require("path");
 
 var que = [];
 
@@ -20,13 +17,10 @@ const writer = () => {
   });
 };
 
-const setuplogs = (a)=> {
-
-fs.mkdirSync(path.join(
-  __dirname,"/Utils/logs/"))
-
-}
+const setuplogs = (a) => {
+  fs.mkdirSync(path.join(__dirname, "/Utils/"), { recursive: true });
+};
 
 setInterval(writer, 1000);
 
-module.exports = { writer, queadder,setuplogs };
+module.exports = { writer, queadder, setuplogs };

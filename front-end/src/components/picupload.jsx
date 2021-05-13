@@ -4,6 +4,10 @@ import axios from "axios";
 class pictureupload extends Component {
   state = { message: "Upload!" };
 
+  constructor(props) {
+    super(props);
+  }
+
   fileChangedHandler = (event) => {
     this.setState({ selectedFile: event.target.files[0] });
   };
@@ -28,7 +32,7 @@ class pictureupload extends Component {
       this.state.selectedFile.name
     );
     axios
-      .post("/rooms/" + this.props.match.params.name + "/admin/pics", formData)
+      .post("/rooms/" + this.props.name + "/admin/pics", formData)
       .then((e) => this.setState({ message: "Finished" }));
   };
 }

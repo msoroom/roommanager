@@ -68,13 +68,13 @@ router.get("/:room", auth, auditlog, async (req, res) => {
     if (req.user.perms.admin) {
       const { name, pics, props, buckedlist } = room;
 
-      return res.send({ name, pics, props, buckedlist });
+      return res.send({ name, pics, props, todo: buckedlist });
     }
 
     let information = { name: room.name };
     if (req.user.perms.see_pics) information.pics = room.pics;
-    if (req.user.perms.see_props) information.props = room.props;
-    if (req.user.perms.see_todo) information.todo = room.buckedlist;
+    if (req.user.perms.see_props) information.props = room.props || {};
+    if (req.user.perms.see_todo) information.todo = room.buckedlist || {};
 
     res.send({ ...information });
   } catch (error) {
@@ -134,7 +134,9 @@ router.post(
 
     const room = await Room.findOne({ name: req.params.room });
 
-    room.pics = room.pics.concat({ pic: buffer });
+    console.log(room);
+
+    room.pics.push({ pic: buffer });
     await room.save();
 
     res.send(room);
@@ -153,9 +155,9 @@ router.delete("/:room/pic/admin", auth, auditlog, async (req, res) => {
   try {
     var room = await Room.findOne({ name: req.params.room });
 
-    room.pics = room.pics.filter((pic) => {
-      !delbil.includes(pic._id);
-    });
+    room.pics = room.pics.filter((pic) => !delbil.includes(String(pic._id)));
+
+    room.save();
 
     res.send();
   } catch (error) {
