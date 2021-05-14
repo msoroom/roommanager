@@ -8,6 +8,7 @@ import CR from "./createroome";
 import Gar from "./getallrooms";
 import Room from "./roomtemplate";
 import Navbar from "./navbar";
+import AdminPannel from "./adminpannel";
 
 class maine extends Component {
   render() {
@@ -33,6 +34,9 @@ class maine extends Component {
               <Route exact path="/Room/:name" component={Room}></Route>
               <Route exact path="/search">
                 <SearchBar />
+              </Route>
+              <Route exect path="/user/admin">
+                <AdminPannel />
               </Route>
             </Switch>
           </Router>

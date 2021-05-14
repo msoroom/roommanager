@@ -98,6 +98,32 @@ router.post("/users/logoutAll", auth, async (req, res) => {
 //   }
 // });
 
+//?limit=10 => anzahl der user
+//?name="" => name des users
+//? skip=1 => page
+//http://localhost:3001/users/all/admin?skip=0&limit=1&name=Jonas%20Liebegott
+router.get("/users/all/admin", async (req, res) => {
+  const name = req.query.name !== undefined ? { name: req.query.name } : {};
+
+  const { limit, skip } = req.query;
+  const options = { limit: parseInt(limit), skip: parseInt(skip) };
+
+  // console.log(
+  //   "name: " + JSON.stringify(name) + "options: " + JSON.stringify(options)
+  // );
+
+  try {
+    const a = await User.find(name)
+      .limit(options.limit)
+      .skip(options.skip)
+      .select({ name: 1, _id: 1, perms: 2 });
+
+    res.send(a);
+  } catch (e) {
+    console.error(e);
+  }
+});
+
 router.delete("/users/me", auth, async (req, res) => {
   try {
     await req.user.remove();

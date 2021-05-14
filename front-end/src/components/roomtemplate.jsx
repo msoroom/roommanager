@@ -549,7 +549,6 @@ class room extends Component {
       </div>
     );
   }
-  picdeleter() {}
 }
 
 export default room;
