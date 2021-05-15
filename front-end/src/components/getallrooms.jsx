@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 class allrooms extends Component {
   state = { rooms: null };
   render() {
@@ -11,8 +11,8 @@ class allrooms extends Component {
   }
 
   async componentDidMount() {
-    var data = await fetch("/rooms/");
-    var data = await data.json();
+    var data = await fetch("/api/rooms/");
+    data = await data.json();
 
     this.setState({ rooms: data });
   }

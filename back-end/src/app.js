@@ -21,8 +21,8 @@ app.use(express.urlencoded({ extended: false }));
 
 //routers
 
-app.use(userRouter);
-app.use("/rooms", roomRouter);
+app.use("/api", userRouter);
+app.use("/api/rooms", roomRouter);
 
 process.env.file = path.join(
   __dirname,

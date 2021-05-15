@@ -51,16 +51,17 @@ class searchBar extends Component {
       redirect: "follow",
     };
 
-    fetch("/users/login", requestOptions)
+    fetch("/api/users/login", requestOptions)
       .then((response) => response.json())
       .then((result) => {
         if (result.error)
           return this.setState({ message: "Das hat nicht geklappt" });
         else this.setState({ message: " Das hat geklappt" });
       })
-      .catch((error) => {this.setState({ message: "Fa " })
-      console.log(error)
-    });
+      .catch((error) => {
+        this.setState({ message: "Fa " });
+        console.log(error);
+      });
   }
 }
 

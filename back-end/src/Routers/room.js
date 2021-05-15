@@ -68,13 +68,13 @@ router.get("/:room", auth, auditlog, async (req, res) => {
     if (req.user.perms.admin) {
       const { name, pics, props, buckedlist } = room;
 
-      return res.send({ name, pics, props, todo: buckedlist });
+      return res.send({ name, pics, props, todos: buckedlist });
     }
 
     let information = { name: room.name };
     if (req.user.perms.see_pics) information.pics = room.pics;
     if (req.user.perms.see_props) information.props = room.props || {};
-    if (req.user.perms.see_todo) information.todo = room.buckedlist || {};
+    if (req.user.perms.see_todo) information.todos = room.buckedlist || {};
 
     res.send({ ...information });
   } catch (error) {

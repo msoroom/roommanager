@@ -17,7 +17,7 @@ class adminPanel extends Component {
   render() {
     return (
       <React.Fragment>
-        {this.state.users !== 0 ? (
+        {!this.state.users ? (
           <h1>still loading</h1>
         ) : (
           <React.Fragment>
@@ -78,19 +78,19 @@ class adminPanel extends Component {
   }
 
   async getusers() {
-    const url = "/users/all/admin";
+    const url = "/api/users/all/admin";
 
     const result = await fetch(url);
     const data = await result.json();
 
     var d1 = JSON.parse(JSON.stringify(data));
     var d2 = JSON.parse(JSON.stringify(data));
-
+    console.log(data);
     this.setState({ users: d1, editusers: d2 });
   }
 
   async componentDidMount() {
-    const perm = await fetch("/users/me/auth");
+    const perm = await fetch("/api/users/me/auth");
     const fine2 = await perm.json();
 
     this.setState({
@@ -134,7 +134,7 @@ class adminPanel extends Component {
       redirect: "follow",
     };
 
-    fetch("/users/update/admin", requestOptions);
+    fetch("/api/users/update/admin", requestOptions);
     this.setState({ users: JSON.parse(JSON.stringify(this.state.editusers)) });
   }
 }

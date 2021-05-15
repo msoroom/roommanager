@@ -33,7 +33,7 @@ class createroome extends Component {
       redirect: "follow",
     };
 
-    fetch("/rooms", requestOptions)
+    fetch("/api/rooms", requestOptions)
       .then((response) => response.text())
       .then((result) => console.log(result))
       .catch((error) => console.log("error", error));

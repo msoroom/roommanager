@@ -24,7 +24,7 @@ class navbar extends Component {
       redirect: "follow",
     };
 
-    fetch("/users/logout", requestOptions).then((ea) => {
+    fetch("/api/users/logout", requestOptions).then((ea) => {
       if (ea.status !== 200) return;
       cookies.remove("auth_token", { path: "/" });
       this.setState({ buttonstate: "fullfilled" });

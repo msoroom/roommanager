@@ -13,9 +13,6 @@ import {
 } from "react-bootstrap";
 
 class room extends Component {
-  constructor(props) {
-    super(props);
-  }
   state = {
     Room: null,
     message: "loading",
@@ -60,14 +57,14 @@ class room extends Component {
                 this.state.authstufe.see_props || this.state.authstufe.admin
               ) ? undefined : (
                 <Tab eventKey="props" title="Eigenschaften">
-                  {this.renderprops()}
+                  {this.rendertabg()}
                 </Tab>
               )}
               {!(
                 this.state.authstufe.see_todo || this.state.authstufe.admin
               ) ? undefined : (
-                <Tab eventKey="todo" title="Todo">
-                  {this.rendertodos()}
+                <Tab eventKey="todos" title="Todo">
+                  {this.rendertabg()}
                 </Tab>
               )}
             </Tabs>
@@ -85,7 +82,7 @@ class room extends Component {
     };
 
     const room = await fetch(
-      "/rooms/" + this.props.match.params.name,
+      "/api/rooms/" + this.props.match.params.name,
       requestOptions
     );
 
@@ -95,22 +92,20 @@ class room extends Component {
 
     if (!document.cookie.includes("auth_token")) return;
 
-    var perm = await fetch("/users/me/auth", requestOptions);
+    var perm = await fetch("/api/users/me/auth", requestOptions);
     const fine2 = await perm.json();
     this.setState({
       Room: fine,
       authstufe: fine2,
       chageprops: { ...fine.props },
-      chagetodos: { ...fine.todo },
+      chagetodos: { ...fine.todos },
     });
   }
-
-  handelSelect() {}
 
   renderpics() {
     if (!this.state.Room.pics)
       return <b>Es sind keine Bilder für diesen Raum vorhanden</b>;
-    if (this.state.Room.pics.length == 0)
+    if (this.state.Room.pics.length === 0)
       return <b>Es sind keine Bilder für diesen Raum vorhanden</b>;
 
     return !this.state.editing ? (
@@ -161,38 +156,21 @@ class room extends Component {
     );
   }
 
-  // renderpics() {
-  //   if (!this.state.Room.pics)
-  //     return <b>Es sind keine Bilder für diesen Raum vorhanden</b>;
-  //   if (this.state.Room.pics.length == 0)
-  //     return <b>Es sind keine Bilder für diesen Raum vorhanden</b>;
-  //   return this.state.Room.pics.map((p, i) => {
-  //     const base64string = String(
-  //       "data:image/png;base64," + Buffer.from(p.pic.data).toString("base64")
-  //     );
-
-  //     return (
-  //       <Image src={base64string} key={i} className="autobilder" fluid={true} />
-  //     );
-  //   });
-  // }
-
-  renderprops() {
+  rendertabg() {
     if (!this.state.Room.props) return;
-
+    if (this.state.tab === "pics") return;
     return !this.state.editing ? (
       <React.Fragment>
         <div className="PropsList">
-          {" "}
           <Container fluid="md">
-            {Object.keys(this.state.Room.props).map((prop, i) => {
+            {Object.keys(this.state.Room[this.state.tab]).map((prop, i) => {
               return (
                 <Row>
                   <Col md="auto">
                     <p>{prop}</p>
                   </Col>
                   <Col md="auto">
-                    <p>{this.state.Room.props[prop]}</p>
+                    <p>{this.state.Room[this.state.tab][prop]}</p>
                   </Col>
                 </Row>
               );
@@ -204,7 +182,7 @@ class room extends Component {
       <React.Fragment>
         <div className="PropsList">
           <Container fluid="md">
-            {Object.keys(this.state.Room.props).map((prop, i) => {
+            {Object.keys(this.state.Room[this.state.tab]).map((prop, i) => {
               return (
                 <Row key={i}>
                   <Col md="auto">
@@ -213,10 +191,11 @@ class room extends Component {
                   <Col md="auto">
                     <input
                       id={prop}
-                      value={this.state.chageprops[prop]}
+                      value={this.state["chage" + this.state.tab][prop]}
                       onChange={(e) =>
                         this.setState((prevState) => {
-                          prevState["chageprops"][prop] = e.target.value;
+                          prevState["chage" + this.state.tab][prop] =
+                            e.target.value;
 
                           return prevState;
                         })
@@ -229,7 +208,7 @@ class room extends Component {
                       id={prop._id}
                       onClick={(e) => {
                         this.setState((prevState) => {
-                          prevState["chageprops"][prop] = undefined;
+                          prevState["chage" + this.state.tab][prop] = undefined;
                           return prevState;
                         });
                       }}
@@ -241,88 +220,6 @@ class room extends Component {
               );
             })}
 
-            <Row>
-              <Col md="auto">
-                <input
-                  onChange={(e) => this.setState({ key: e.target.value })}
-                ></input>
-              </Col>
-              <Col md="auto">
-                <input
-                  onChange={(e) => this.setState({ value: e.target.value })}
-                ></input>
-              </Col>
-            </Row>
-          </Container>
-        </div>
-      </React.Fragment>
-    );
-  }
-
-  rendertodos() {
-    if (!this.state.Room.todo) return;
-
-    return !this.state.editing ? (
-      <React.Fragment>
-        <div className="buckedlistList">
-          {" "}
-          <Container fluid="md">
-            {Object.keys(this.state.Room.todo).map((prop, i) => {
-              return (
-                <Row key={i}>
-                  <Col md="auto">
-                    <p>{prop}</p>
-                  </Col>
-                  <Col md="auto">
-                    <p>{this.state.Room.todo[prop]}</p>
-                  </Col>
-                </Row>
-              );
-            })}
-          </Container>
-        </div>
-      </React.Fragment>
-    ) : (
-      <React.Fragment>
-        <div className="buckedlistList">
-          <Container fluid="md">
-            {Object.keys(this.state.Room.todo).map((prop, i) => {
-              return (
-                <Row key={i}>
-                  <Col md="auto">
-                    <input value={prop} readOnly={true}></input>
-                  </Col>
-                  <Col md="auto">
-                    <input
-                      id={prop}
-                      value={this.state.chagetodos[prop]}
-                      onChange={(e) =>
-                        this.setState((prevState) => {
-                          prevState["chagetodos"][prop] = e.target.value;
-                          console.log(prevState);
-                          return prevState;
-                        })
-                      }
-                    ></input>
-                  </Col>
-                  <Col>
-                    <Button
-                      variant="danger"
-                      id={prop._id}
-                      onClick={(e) => {
-                        this.setState((prevState) => {
-                          prevState["chagetodos"][prop] = undefined;
-                          return prevState;
-                        });
-                      }}
-                    >
-                      del
-                    </Button>
-                  </Col>
-                </Row>
-              );
-            })}
-            {console.log("adfasdf")}
             <Row>
               <Col md="auto">
                 <input
@@ -378,12 +275,12 @@ class room extends Component {
                     };
 
                     fetch(
-                      "/rooms/" + this.props.match.params.name + "/pic/admin",
+                      "/api/rooms/" +
+                        this.props.match.params.name +
+                        "/pic/admin",
                       requestOptions
-                    )
-                      .then((response) => response.text())
-                      .then((result) => console.log(result))
-                      .catch((error) => console.log("error", error));
+                    );
+
                     this.setState({ editing: false });
                   }}
                 >
@@ -397,8 +294,11 @@ class room extends Component {
     }
 
     if (
-      this.state.tab === "props" &&
-      (this.state.authstufe.edit_props || this.state.authstufe.admin)
+      (this.state.tab === "todos" || this.state.tab === "props") &&
+      (this.state.authstufe[
+        this.state.tab === "props" ? "edit_props" : "edit_todo"
+      ] ||
+        this.state.authstufe.admin)
     )
       return (
         <div>
@@ -408,83 +308,18 @@ class room extends Component {
             </Button>
           ) : (
             <React.Fragment>
-              {" "}
               <Row>
                 <Button
                   onClick={() =>
-                    this.setState({
-                      editing: false,
-                      key: "",
-                      value: "",
-                      chageprops: { ...this.state.Room.props },
-                    })
-                  }
-                >
-                  cancel
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={async (e) => {
-                    var myHeaders = new Headers();
-                    myHeaders.append("Content-Type", "application/json");
-
-                    if (!(this.state.key === "" || this.state.value === ""))
-                      this.state.chageprops[this.state.key] = this.state.value;
-
-                    var raw = JSON.stringify({
-                      props: { ...this.state.chageprops },
-                    });
-
-                    var requestOptions = {
-                      method: "PATCH",
-                      headers: myHeaders,
-                      body: raw,
-                      redirect: "follow",
-                    };
-
-                    fetch(
-                      "/rooms/" + this.props.match.params.name + "/admin",
-                      requestOptions
-                    )
-                      .then((response) => response.text())
-                      .then((result) => console.log(result))
-                      .catch((error) => console.log("error", error));
                     this.setState((prevState) => {
                       prevState.editing = false;
-                      prevState.Room.props = { ...this.state.chageprops };
+                      prevState.key = "";
+                      prevState.value = "";
+                      prevState["chage" + this.state.tab] = {
+                        ...this.state.Room[this.state.tab],
+                      };
+
                       return prevState;
-                    });
-                  }}
-                >
-                  Save
-                </Button>
-              </Row>
-            </React.Fragment>
-          )}
-        </div>
-      );
-
-    if (
-      this.state.tab === "todo" &&
-      (this.state.authstufe.edit_todo || this.state.authstufe.admin)
-    )
-      return (
-        <div>
-          {!this.state.editing ? (
-            <Button onClick={() => this.setState({ editing: true })}>
-              edit
-            </Button>
-          ) : (
-            <React.Fragment>
-              {" "}
-              <Row>
-                <Button
-                  onClick={() =>
-                    this.setState({
-                      editing: false,
-                      key: "",
-                      value: "",
-                      chagetodos: { ...this.state.Room.todo },
                     })
                   }
                 >
@@ -496,11 +331,18 @@ class room extends Component {
                     var myHeaders = new Headers();
                     myHeaders.append("Content-Type", "application/json");
                     if (!(this.state.key === "" || this.state.value === ""))
-                      this.state.chagetodos[this.state.key] = this.state.value;
-                    console.log(this.state.chagetodos);
-                    var raw = JSON.stringify({
-                      buckedlist: { ...this.state.chagetodos },
-                    });
+                      this.state["chage" + this.state.tab][this.state.key] =
+                        this.state.value;
+
+                    var send = {};
+
+                    if (this.state.tab === "todos") {
+                      send = { buckedlist: this.state.chagetodos };
+                    } else {
+                      send = { props: this.state.chageprops };
+                    }
+
+                    var raw = JSON.stringify(send);
 
                     var requestOptions = {
                       method: "PATCH",
@@ -510,15 +352,15 @@ class room extends Component {
                     };
 
                     fetch(
-                      "/rooms/" + this.props.match.params.name + "/admin",
+                      "/api/rooms/" + this.props.match.params.name + "/admin",
                       requestOptions
-                    )
-                      .then((response) => response.text())
-                      .then((result) => console.log(result))
-                      .catch((error) => console.log("error", error));
+                    );
+
                     this.setState((prevState) => {
                       prevState.editing = false;
-                      prevState.Room.todo = { ...this.state.chagetodos };
+                      prevState.Room[this.state.tab] = {
+                        ...this.state["chage" + this.state.tab],
+                      };
 
                       return prevState;
                     });
@@ -531,21 +373,6 @@ class room extends Component {
           )}
         </div>
       );
-
-    return (
-      <div>
-        {!this.state.editing ? (
-          <Button onClick={() => this.setState({ editing: true })}>edit</Button>
-        ) : (
-          <Row>
-            <Button onClick={() => this.setState({ editing: false })}>
-              cancel
-            </Button>
-            <Button variant="danger">Save</Button>
-          </Row>
-        )}
-      </div>
-    );
   }
 }
 

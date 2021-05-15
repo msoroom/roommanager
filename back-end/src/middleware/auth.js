@@ -19,7 +19,7 @@ const auth = async (req, res, next) => {
 
     next();
   } catch (e) {
-    res.redirect("/login");
+    res.status(404).send();
   }
 };
 

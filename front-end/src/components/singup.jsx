@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
+
 class searchBar extends Component {
   constructor(props) {
     super(props);
@@ -60,7 +60,7 @@ class searchBar extends Component {
   handleSubmit(event) {
     event.preventDefault();
 
-    if (this.state.password1 != this.state.password2)
+    if (this.state.password1 !== this.state.password2)
       return this.setState({ message: " Passwörter stimmen nicht über ein " });
 
     var myHeaders = new Headers();
@@ -79,7 +79,7 @@ class searchBar extends Component {
       redirect: "follow",
     };
 
-    fetch("/users", requestOptions)
+    fetch("/api/users", requestOptions)
       .then((response) => response.text())
       .then((result) =>
         this.setState({ message: "Du hast dich erfolgreich registriert" })

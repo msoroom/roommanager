@@ -3,10 +3,9 @@ import ReactDOM from "react-dom";
 import reportWebVitals from "./reportWebVitals";
 
 import "./index.css";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 
 //Component imports
-import SearchBar from "./components/suchen";
+
 import Hauptform from "./components/main";
 
 ReactDOM.render(<Hauptform />, document.getElementById("root"));
