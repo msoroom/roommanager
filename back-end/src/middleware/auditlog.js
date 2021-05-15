@@ -11,8 +11,7 @@ const a = (req, res, next) => {
     });
     next();
   } catch (error) {
-    console.log(error);
-    next();
+    res.send({ error: "upsis" });
   }
 };
 

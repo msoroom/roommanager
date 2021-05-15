@@ -17,11 +17,13 @@ class adminPanel extends Component {
   render() {
     return (
       <React.Fragment>
-        {!this.state.users ? (
+        {this.state.users !== 0 ? (
           <h1>still loading</h1>
         ) : (
           <React.Fragment>
-            {this.renderusers()} {this.renderButton()}
+            {this.renderusers()}
+
+            {this.renderButton()}
           </React.Fragment>
         )}
       </React.Fragment>
@@ -45,9 +47,9 @@ class adminPanel extends Component {
               </Card.Header>
               <Accordion.Collapse eventKey={i.toString()}>
                 <Card.Body>
-                  {Object.keys(user.perms).map((per) => {
+                  {Object.keys(user.perms).map((per, j) => {
                     return (
-                      <Row>
+                      <Row key={j}>
                         <Col>{per}</Col>
                         <Col>
                           <Button
@@ -55,7 +57,7 @@ class adminPanel extends Component {
                             variant={!user.perms[per] ? "danger" : "success"}
                             onClick={(e) => {
                               this.setState((prevState) => {
-                                prevState.editusers[i].perms[per] =
+                                prevState["editusers"][i]["perms"][per] =
                                   !user.perms[per];
 
                                 return prevState;
@@ -76,29 +78,25 @@ class adminPanel extends Component {
   }
 
   async getusers() {
-    const url =
-      "/users/all/admin?skip=" + this.state.page + "&limit=" + this.state.limit;
+    const url = "/users/all/admin";
 
     const result = await fetch(url);
     const data = await result.json();
 
-    this.setState({ users: data.slice(), editusers: data.slice() });
+    var d1 = JSON.parse(JSON.stringify(data));
+    var d2 = JSON.parse(JSON.stringify(data));
+
+    this.setState({ users: d1, editusers: d2 });
   }
 
   async componentDidMount() {
-    var perm = await fetch("/users/me/auth");
+    const perm = await fetch("/users/me/auth");
     const fine2 = await perm.json();
 
-    const url =
-      "/users/all/admin?skip=" + this.state.page + "&limit=" + this.state.limit;
-
-    const result = await fetch(url);
-    const data = await result.json();
     this.setState({
       perms: fine2,
-      users: data.slice(),
-      editusers: data.slice(),
     });
+    await this.getusers();
   }
   renderButton() {
     return (
@@ -120,14 +118,24 @@ class adminPanel extends Component {
   }
 
   async doadvancedstuff() {
-    const a = this.state.editusers.filter(
-      (a, i) => JSON.stringify(this.state.users[i]) === JSON.stringify(a)
-    );
+    const a = this.state.editusers.filter((a, i) => {
+      return JSON.stringify(this.state.users[i]) !== JSON.stringify(a);
+    });
 
-    console.log(a);
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
-    console.log(this.state.editusers);
-    console.log(this.state.users);
+    var raw = JSON.stringify(a);
+
+    var requestOptions = {
+      method: "PATCH",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    fetch("/users/update/admin", requestOptions);
+    this.setState({ users: JSON.parse(JSON.stringify(this.state.editusers)) });
   }
 }
 

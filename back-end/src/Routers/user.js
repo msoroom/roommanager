@@ -102,7 +102,9 @@ router.post("/users/logoutAll", auth, async (req, res) => {
 //?name="" => name des users
 //? skip=1 => page
 //http://localhost:3001/users/all/admin?skip=0&limit=1&name=Jonas%20Liebegott
-router.get("/users/all/admin", async (req, res) => {
+router.get("/users/all/admin", auth, auditlog, async (req, res) => {
+  if (!req.user.perms.admin)
+    return res.status(400).send({ error: "You are not permitted to do this." });
   const name = req.query.name !== undefined ? { name: req.query.name } : {};
 
   const { limit, skip } = req.query;
@@ -124,7 +126,7 @@ router.get("/users/all/admin", async (req, res) => {
   }
 });
 
-router.delete("/users/me", auth, async (req, res) => {
+router.delete("/users/me", auth, auditlog, async (req, res) => {
   try {
     await req.user.remove();
 
@@ -134,12 +136,12 @@ router.delete("/users/me", auth, async (req, res) => {
   }
 });
 // gets the permissions for an user
-router.get("/users/me/auth", auth, async (req, res) => {
+router.get("/users/me/auth", auth, auditlog, async (req, res) => {
   res.send({ ...req.user.perms });
 });
 // updates a user
-router.patch("/users/:id", auth, async (req, res) => {
-  if (!req.user.permissions.includes("admin"))
+router.patch("/users/:id", auth, auditlog, async (req, res) => {
+  if (!req.user.perms.admin)
     return res.status(400).send({ error: "You are not permitted to do this." });
 
   try {
@@ -156,6 +158,40 @@ router.patch("/users/:id", auth, async (req, res) => {
     usertoupdate.save();
     res.send({ perms: usertoupdate.perms });
   } catch (error) {}
+});
+
+router.patch("/users/update/admin", auth, auditlog, async (req, res) => {
+  if (!req.user.perms.admin)
+    return res.status(400).send({ error: "You are not permitted to do this." });
+
+  const validUpdates = [
+    "see_pics",
+    "admin",
+    "see_props",
+    "edit_pics",
+    "edit_props",
+    "see_todo",
+    "edit_todo",
+  ];
+  try {
+    const a = await req.body.map(async (key) => {
+      key.perms = Object.fromEntries(
+        Object.entries(key.perms).filter(([keya]) =>
+          validUpdates.includes(keya)
+        )
+      );
+
+      var d = await User.findById({ _id: key._id });
+      d.perms = key.perms;
+      const ggg = await d.save();
+
+      return ggg;
+    });
+
+    res.send(a);
+  } catch (e) {
+    resstatus(500).send();
+  }
 });
 
 module.exports = router;

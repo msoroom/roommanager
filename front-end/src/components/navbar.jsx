@@ -13,9 +13,7 @@ class navbar extends Component {
     return this.renderalle();
   }
 
-  componentDidMount() {
-    //const a = new Cookies().addChangeListener(this.renderalle);
-  }
+  async componentDidMount() {}
 
   async logout(e) {
     e.preventDefault();
@@ -26,23 +24,26 @@ class navbar extends Component {
       redirect: "follow",
     };
 
-    fetch("/users/logout", requestOptions)
-      .then((ea) => {
-        if (ea.status !== 200) return;
-        this.setState({ buttonstate: "fullfilled" });
-        cookies.remove("auth_token", { path: "/" });
-      })
-      .catch((e) => console.log(e));
+    fetch("/users/logout", requestOptions).then((ea) => {
+      if (ea.status !== 200) return;
+      cookies.remove("auth_token", { path: "/" });
+      this.setState({ buttonstate: "fullfilled" });
+    });
   }
 
   renderalle() {
     return (
       <Navbar sticky="top" className="color-nav" fixed="top">
         <Nav>
-          {document.location.pathname == "/" ? (
+          {document.location.pathname === "/" ? (
             <></>
           ) : (
             <Navbar.Brand href="/">Zu den Räumen</Navbar.Brand>
+          )}
+          {document.location.pathname === "/user/admin" ? (
+            <></>
+          ) : (
+            <Navbar.Brand href="/user/admin">AdminPannel</Navbar.Brand>
           )}
           {!document.cookie.toString().includes("auth_token") ? (
             <Navbar.Brand href="/login">Login</Navbar.Brand>

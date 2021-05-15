@@ -103,8 +103,6 @@ class room extends Component {
       chageprops: { ...fine.props },
       chagetodos: { ...fine.todo },
     });
-
-    console.log(fine);
   }
 
   handelSelect() {}

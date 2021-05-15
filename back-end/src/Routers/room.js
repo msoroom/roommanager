@@ -59,7 +59,7 @@ router.get("/", async (req, res) => {
 //gets the information for an room
 router.get("/:room", auth, auditlog, async (req, res) => {
   const roomName = req.params.room;
-  console.log("sdfdf");
+
   try {
     const room = await Room.findOne({ name: roomName });
 
@@ -133,8 +133,6 @@ router.post(
       .toBuffer();
 
     const room = await Room.findOne({ name: req.params.room });
-
-    console.log(room);
 
     room.pics.push({ pic: buffer });
     await room.save();
